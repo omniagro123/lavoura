@@ -122,6 +122,8 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
   .cx-resumo b { font-weight: 600; font-variant-numeric: tabular-nums; }
   .cx-cheio { color: var(--color-ok); }
   .cx-baixo { color: var(--color-bad); font-weight: 600; }
+  .cx-espera { border-style: dashed; }
+  .cx-espera .cx-cardnote { margin: 0; }
   .cx-metodo { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
   .cx-metodo summary { cursor: pointer; color: var(--color-fg); font-size: var(--cds-font-size-body); }
   .cx-metodo p { max-width: 60rem; margin: var(--cds-gap-xs) 0 0; }
@@ -382,6 +384,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     title: 'Chuva desde o plantio',
     description: 'Para cada talhão, soma das leituras a partir do dia do plantio e o número de dias registrados.',
     fn: (chuva, plantios) => plantios.map((p) => {
+      if (!p.plantio) return { talhao: p.talhao, plantio: null, chuva_mm: null, dias: 0 };
       const ini = String(p.plantio).slice(0, 10);
       const r = chuva.filter((d) => String(d.dia).slice(0, 10) >= ini && !isNaN(Number(d.chuva_mm)));
       return { talhao: p.talhao, plantio: ini, chuva_mm: Math.round(r.reduce((s, d) => s + Number(d.chuva_mm), 0) * 10) / 10, dias: r.length };
@@ -444,6 +447,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       const r1 = (v) => Math.round(v * 10) / 10;
       const out = [];
       plantios.forEach((pl) => {
+        if (!pl.plantio) return;
         const ini = String(pl.plantio).slice(0, 10);
         let dr = 0, et0Ant = null, gdAcum = 0, tAnt = null;
         Object.keys(dias).sort().filter((d) => d >= ini).forEach((d) => {
@@ -655,6 +659,16 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       window.cxStat(st, 'Produtividade atingível', window.cxNum(yw, 1), ' sc/ha', window.cxNum(p.yw_pct, 0) + '% do potencial de ' + meta + ' sc/ha', p.gap_pct > 0 ? 'warn' : null);
       window.cxStat(st, 'Yield gap hídrico', window.cxNum(gap, 1), ' sc/ha', window.cxNum(p.gap_pct, 1) + '% perdido por falta d\'água até agora', p.gap_pct > 0 ? 'warn' : null);
       card.appendChild(st); el.appendChild(card);
+    });
+    chuvas.filter((c) => !c.plantio && !g.data.some((p) => p.talhao === c.talhao)).forEach((c) => {
+      const card = document.createElement('div'); card.className = 'cx-card cx-espera';
+      const head = document.createElement('div'); head.className = 'cx-talhao-head';
+      const h = document.createElement('h2'); h.textContent = 'Talhão ' + c.talhao;
+      const m = document.createElement('span'); m.textContent = 'aguardando plantio';
+      head.append(h, m);
+      const n = document.createElement('p'); n.className = 'cx-cardnote';
+      n.textContent = 'Mesma variedade, solo e estação do Tico. Assim que a data de plantio for lançada, entram estádio, água no solo, chuva desde o plantio e produtividade.';
+      card.append(head, n); el.appendChild(card);
     });
   });
 
