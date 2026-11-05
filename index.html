@@ -166,7 +166,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
   </nav>
 
   <section class="cx-panel" data-panel="lavoura" id="lavoura">
-    <div class="cx-stack" data-draw="talhoes" data-source="produtividade desde_plantio"></div>
+    <div class="cx-stack" data-draw="talhoes" data-source="produtividade desde_plantio plantios"></div>
     <div class="cx-stack" data-draw="diaadia" data-source="balanco"></div>
     <div class="cx-grid">
       <div class="cx-card" id="agua-solo">
@@ -642,12 +642,15 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     el.replaceChildren();
     if (g.status !== 'ok') { el.textContent = '—'; return; }
     const chuvas = dp.status === 'ok' ? dp.data : [];
+    const pl = dash.data('plantios'), cadastro = pl.status === 'ok' ? pl.data : [];
+    const areaDe = (n) => { const r = cadastro.find((x) => x.talhao === n); return r && r.area_ha ? Number(r.area_ha) : null; };
     g.data.forEach((p) => {
       const c = chuvas.find((x) => x.talhao === p.talhao);
+      const area = areaDe(p.talhao);
       const card = document.createElement('div'); card.className = 'cx-card';
       const head = document.createElement('div'); head.className = 'cx-talhao-head';
       const h = document.createElement('h2'); h.textContent = 'Talhão ' + p.talhao;
-      const m = document.createElement('span'); m.textContent = (c ? 'plantio em ' + window.cxDiaCurto(c.plantio) + ' · ' : '') + p.das + ' dias após o plantio · dados até ' + window.cxDiaCurto(p.dia);
+      const m = document.createElement('span'); m.textContent = (area ? window.cxNum(area, 2) + ' ha · ' : '') + (c ? 'plantio em ' + window.cxDiaCurto(c.plantio) + ' · ' : '') + p.das + ' dias após o plantio · dados até ' + window.cxDiaCurto(p.dia);
       head.append(h, m); card.appendChild(head);
       const st = document.createElement('div'); st.className = 'cx-stats';
       window.cxStat(st, 'Estádio estimado', p.estadio, '', p.proximo_estadio ? p.proximo_estadio + ' por volta de ' + window.cxDiaCurto(p.proximo_estadio_dia) : p.gd_acum + ' graus-dia');
@@ -658,6 +661,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       const yw = meta * p.yw_pct / 100, gap = meta - yw;
       window.cxStat(st, 'Produtividade atingível', window.cxNum(yw, 1), ' sc/ha', window.cxNum(p.yw_pct, 0) + '% do potencial de ' + meta + ' sc/ha', p.gap_pct > 0 ? 'warn' : null);
       window.cxStat(st, 'Yield gap hídrico', window.cxNum(gap, 1), ' sc/ha', window.cxNum(p.gap_pct, 1) + '% perdido por falta d\'água até agora', p.gap_pct > 0 ? 'warn' : null);
+      if (area) window.cxStat(st, 'Produção atingível no talhão', window.cxNum(yw * area, 0), ' sc', 'em ' + window.cxNum(area, 2) + ' ha; ' + window.cxNum(gap * area, 0) + ' sc perdidas por falta d\'água', p.gap_pct > 0 ? 'warn' : null);
       card.appendChild(st); el.appendChild(card);
     });
     chuvas.filter((c) => !c.plantio && !g.data.some((p) => p.talhao === c.talhao)).forEach((c) => {
