@@ -128,6 +128,9 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
   .cx-metodo summary { cursor: pointer; color: var(--color-fg); font-size: var(--cds-font-size-body); }
   .cx-metodo p { max-width: 60rem; margin: var(--cds-gap-xs) 0 0; }
   .cx-alerta { padding: var(--cds-pad-xs) var(--cds-pad-md); }
+  .cx-seg { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin: 0 0 var(--cds-gap-sm); }
+  .cx-seg button { appearance: none; font: inherit; font-size: var(--cds-font-size-caption); padding: .2rem .75rem; border-radius: 999px; border: 1px solid var(--color-border-line); background: none; color: var(--color-fg-muted); cursor: pointer; }
+  .cx-seg button[aria-pressed="true"] { background: var(--color-fg); border-color: var(--color-fg); color: var(--color-panel); }
 
 .cx-head h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(2rem, 5vw, 2.8rem); letter-spacing: -.01em; margin: .2rem 0 .3rem; text-wrap: balance; }
 .site-brand { display: flex; align-items: center; gap: .5rem; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-2); font-weight: 600; }
@@ -151,7 +154,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     <div class="site-brand"><span class="site-mark" aria-hidden="true"></span><span>OmniAgro · monitoramento de lavoura</span></div>
     <h1>Lavoura e clima</h1>
     <p class="cx-eyebrow">Sítio Rancho Alegre · estação ISOMIG20 · São Miguel Arcanjo/SP · <span id="site-atualizado">—</span></p>
-    <p class="cx-take">Talhão <b data-draw="hl_talhao">—</b> em <b data-draw="hl_estadio">—</b>, com <b data-draw="hl_agua">—</b>% de água no solo. Chuva registrada: <b data-draw="total2">—</b> mm em <b data-draw="ndias">—</b> dias.</p>
+    <p class="cx-take"><span data-draw="hl_talhoes" data-source="produtividade desde_plantio">—</span> Chuva registrada: <b data-draw="total2">—</b> mm em <b data-draw="ndias">—</b> dias.</p>
   </header>
 
   <section id="alertas" aria-label="Alertas">
@@ -177,12 +180,13 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       <div class="cx-card" id="demanda">
         <h2>Demanda e consumo de água</h2>
         <p class="cx-cardnote">ETc (demanda) e ETa (consumo real) por dia, em mm, no talhão <span data-draw="t1">—</span></p>
+        <div class="cx-seg" role="group" aria-label="Talhão do gráfico" data-draw="etcsel" data-source="balanco">—</div>
         <div class="cx-chart dash-skeleton" data-draw="etcchart" data-source="balanco"></div>
       </div>
     </div>
     <details class="cx-metodo">
       <summary>Como é calculado</summary>
-      <p>Estádio estimado por graus-dia (base 10 °C) para a M 6330 I2X, uma aproximação que vale conferir no campo. ET0 por Hargreaves-Samani com as temperaturas da estação; Kc da soja (FAO-56) e profundidade de raiz (10 a 60 cm) seguem o tempo fisiológico; 110 mm de água disponível por metro de solo; a soja entra em estresse abaixo de 50% da água disponível. Depois do último dia medido, o balanço continua com a previsão do AccuWeather. A produtividade atingível usa o Ky por fase (Doorenbos e Kassam), só com dias medidos, sobre um potencial de 95 sc/ha sem falta d'água, definido por João; o yield gap hídrico é a diferença entre esse potencial e a produtividade atingível.</p>
+      <p>Estádio estimado por graus-dia (base 10 °C) para a M 6330 I2X, a variedade do Tico; o André 1 (65IX67) usa a mesma escala, então os estádios dele são uma aproximação maior. Vale conferir no campo. ET0 por Hargreaves-Samani com as temperaturas da estação; Kc da soja (FAO-56) e profundidade de raiz (10 a 60 cm) seguem o tempo fisiológico; 110 mm de água disponível por metro de solo; a soja entra em estresse abaixo de 50% da água disponível. Depois do último dia medido, o balanço continua com a previsão do AccuWeather. A produtividade atingível usa o Ky por fase (Doorenbos e Kassam), só com dias medidos, sobre um potencial de 95 sc/ha sem falta d'água, definido por João; o yield gap hídrico é a diferença entre esse potencial e a produtividade atingível.</p>
     </details>
   </section>
 
@@ -278,15 +282,12 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
   </section>
 
   <section class="cx-panel" data-panel="tabelas" id="tabelas" hidden>
-    <div class="cx-card" id="balanco-diario">
-      <h2>Balanço hídrico dia a dia</h2>
-      <p class="cx-cardnote">Mais recentes primeiro; dias em itálico são previsão</p>
-      <div class="cx-tablebox">
-        <table class="cx-table" data-source="balanco" data-row-key="talhao,dia">
-          <thead><tr><th data-field="talhao">Talhão</th><th data-field="dia">Dia</th><th class="cx-r" data-field="das">DAP</th><th data-field="estadio">Estádio</th><th class="cx-r" data-field="chuva_mm">Chuva</th><th class="cx-r" data-field="et0_mm">ET0</th><th class="cx-r" data-field="etc_mm">ETc</th><th class="cx-r" data-field="eta_mm">ETa</th><th class="cx-r" data-field="agua_pct">Água no solo</th></tr></thead>
-          <tbody data-draw="baltab"></tbody>
-        </table>
+    <div class="cx-stack" id="balanco-diario">
+      <div>
+        <h2 class="cx-sech">Balanço hídrico dia a dia</h2>
+        <p class="cx-secnote">Uma tabela por talhão; mais recentes primeiro; dias em itálico são previsão</p>
       </div>
+      <div class="cx-grid" data-draw="baltabs" data-source="balanco"></div>
     </div>
     <div class="cx-card" id="leituras">
       <h2>Chuva por dia</h2>
@@ -315,7 +316,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     colors: ['var(--agua)', 'var(--palha)', 'var(--verde)', 'var(--perigo)', 'var(--tinta-2)'],
     calc(id, o) { calcs.push([id, o]); },
     loader() {},
-    draw(name, fn) { draws[name] = fn; },
+    draw(name, fn) { if (fn) draws[name] = fn; else setTimeout(window.siteDrawAll, 0); },
     data(id) { return id in store ? { status: 'ok', data: store[id], columns: [] } : { status: 'loading', data: [] }; },
     onData() {}, params() { return {}; }, setParams() {}, resetParams() {}, refresh() {},
     setLink(id) { try { history.replaceState(null, '', '#' + id); } catch (e) {} },
@@ -517,7 +518,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
           deficit_mm: Math.round((etc - eta) * 10) / 10, dias_estresse: rs.filter((x) => x.ks < 1).length,
           yw_pct: Math.round(rel * 1000) / 10, gap_pct: Math.round((1 - rel) * 1000) / 10,
           agua_fim_previsao_pct: fim ? fim.agua_pct : null, fim_previsao_dia: fim ? fim.dia : null,
-          estresse_previsto_dia: estresse ? estresse.dia : null,
+          estresse_previsto_dia: estresse ? estresse.dia : null, medidos: rs.length,
         };
       });
     },
@@ -578,7 +579,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     fn: (produtividade, previsao, ferrugem, ferrugem_prox, janela) => {
       const dm = (s) => String(s).slice(8, 10) + '/' + String(s).slice(5, 7);
       const out = [];
-      produtividade.forEach((p) => {
+      produtividade.filter((p) => p.medidos !== 0).forEach((p) => {
         if (p.agua_pct < 50) out.push({ nivel: 'alto', tipo: 'agua', texto: 'Soja em estresse hídrico no talhão ' + p.talhao + ': ' + p.agua_pct + '% de água disponível.' });
         else if (p.estresse_previsto_dia) out.push({ nivel: 'medio', tipo: 'agua', texto: 'Previsão de estresse hídrico no talhão ' + p.talhao + ' a partir de ' + dm(p.estresse_previsto_dia) + '.' });
       });
@@ -642,15 +643,27 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     el.replaceChildren();
     if (g.status !== 'ok') { el.textContent = '—'; return; }
     const chuvas = dp.status === 'ok' ? dp.data : [];
-    const pl = dash.data('plantios'), cadastro = pl.status === 'ok' ? pl.data : [];
-    const areaDe = (n) => { const r = cadastro.find((x) => x.talhao === n); return r && r.area_ha ? Number(r.area_ha) : null; };
+    const pls = dash.data('plantios').status === 'ok' ? dash.data('plantios').data : [];
     g.data.forEach((p) => {
       const c = chuvas.find((x) => x.talhao === p.talhao);
-      const area = areaDe(p.talhao);
+      const pl = pls.find((x) => x.talhao === p.talhao) || {};
+      const info = [pl.variedade, pl.area_ha != null ? window.cxNum(pl.area_ha, 2) + ' ha' : null].filter(Boolean).join(' · ');
+      const plantio = c && c.plantio ? 'plantio em ' + window.cxDiaCurto(c.plantio) : '';
+      if (p.medidos === 0) {
+        const card = document.createElement('div'); card.className = 'cx-card cx-espera';
+        const head = document.createElement('div'); head.className = 'cx-talhao-head';
+        const h = document.createElement('h2'); h.textContent = 'Talhão ' + p.talhao;
+        const m = document.createElement('span'); m.textContent = [plantio, info].filter(Boolean).join(' · ');
+        head.append(h, m);
+        const n = document.createElement('p'); n.className = 'cx-cardnote';
+        n.textContent = 'Plantado' + (c && c.plantio ? ' em ' + window.cxDiaCurto(c.plantio) : '') + ', aguardando a primeira leitura da estação (às 23:45). Depois dela entram estádio, água no solo, chuva desde o plantio e produtividade.';
+        card.append(head, n); el.appendChild(card);
+        return;
+      }
       const card = document.createElement('div'); card.className = 'cx-card';
       const head = document.createElement('div'); head.className = 'cx-talhao-head';
       const h = document.createElement('h2'); h.textContent = 'Talhão ' + p.talhao;
-      const m = document.createElement('span'); m.textContent = (area ? window.cxNum(area, 2) + ' ha · ' : '') + (c ? 'plantio em ' + window.cxDiaCurto(c.plantio) + ' · ' : '') + p.das + ' dias após o plantio · dados até ' + window.cxDiaCurto(p.dia);
+      const m = document.createElement('span'); m.textContent = [plantio, info, p.das + ' dias após o plantio', 'dados até ' + window.cxDiaCurto(p.dia)].filter(Boolean).join(' · ');
       head.append(h, m); card.appendChild(head);
       const st = document.createElement('div'); st.className = 'cx-stats';
       window.cxStat(st, 'Estádio estimado', p.estadio, '', p.proximo_estadio ? p.proximo_estadio + ' por volta de ' + window.cxDiaCurto(p.proximo_estadio_dia) : p.gd_acum + ' graus-dia');
@@ -661,7 +674,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       const yw = meta * p.yw_pct / 100, gap = meta - yw;
       window.cxStat(st, 'Produtividade atingível', window.cxNum(yw, 1), ' sc/ha', window.cxNum(p.yw_pct, 0) + '% do potencial de ' + meta + ' sc/ha', p.gap_pct > 0 ? 'warn' : null);
       window.cxStat(st, 'Yield gap hídrico', window.cxNum(gap, 1), ' sc/ha', window.cxNum(p.gap_pct, 1) + '% perdido por falta d\'água até agora', p.gap_pct > 0 ? 'warn' : null);
-      if (area) window.cxStat(st, 'Produção atingível no talhão', window.cxNum(yw * area, 0), ' sc', 'em ' + window.cxNum(area, 2) + ' ha; ' + window.cxNum(gap * area, 0) + ' sc perdidas por falta d\'água', p.gap_pct > 0 ? 'warn' : null);
+      if (pl.area_ha) window.cxStat(st, 'Produção atingível no talhão', window.cxNum(yw * Number(pl.area_ha), 0), ' sc', 'em ' + window.cxNum(Number(pl.area_ha), 2) + ' ha; ' + window.cxNum(gap * Number(pl.area_ha), 0) + ' sc perdidas por falta d\'água', p.gap_pct > 0 ? 'warn' : null);
       card.appendChild(st); el.appendChild(card);
     });
     chuvas.filter((c) => !c.plantio && !g.data.some((p) => p.talhao === c.talhao)).forEach((c) => {
@@ -671,19 +684,26 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
       const m = document.createElement('span'); m.textContent = 'aguardando plantio';
       head.append(h, m);
       const n = document.createElement('p'); n.className = 'cx-cardnote';
-      n.textContent = 'Mesma variedade, solo e estação do Tico. Assim que a data de plantio for lançada, entram estádio, água no solo, chuva desde o plantio e produtividade.';
+      n.textContent = 'Assim que a data de plantio for lançada, entram estádio, água no solo, chuva desde o plantio e produtividade.';
       card.append(head, n); el.appendChild(card);
     });
   });
 
-  const cxHl = (name, fmt) => dash.draw(name, (el) => {
-    const g = dash.data('produtividade');
-    const row = g.status === 'ok' && g.data && g.data[0];
-    el.textContent = row ? fmt(row) : '—';
+  dash.draw('hl_talhoes', (el) => {
+    const g = dash.data('produtividade'), dp = dash.data('desde_plantio');
+    el.replaceChildren();
+    if (g.status !== 'ok' || !g.data.length) { el.textContent = '—'; return; }
+    const chuvas = dp.status === 'ok' ? dp.data : [];
+    const b = (t) => { const x = document.createElement('b'); x.textContent = t; return x; };
+    g.data.forEach((p, i) => {
+      el.append(i === 0 ? 'Talhão ' : '; talhão ', b(p.talhao));
+      if (p.medidos === 0) {
+        const c = chuvas.find((x) => x.talhao === p.talhao);
+        el.append(' plantado' + (c && c.plantio ? ' em ' + window.cxDiaCurto(c.plantio) : ''));
+      } else el.append(' em ', b(p.estadio), ', com ', b(String(p.agua_pct)), '% de água no solo');
+    });
+    el.append('.');
   });
-  cxHl('hl_talhao', (r) => r.talhao);
-  cxHl('hl_estadio', (r) => r.estadio);
-  cxHl('hl_agua', (r) => String(r.agua_pct));
 
   (() => {
     const ids = ['lavoura', 'tempo', 'chuva', 'tabelas'];
@@ -808,9 +828,30 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     });
   });
 
+  window.cxEtcSel = null;
+  window.cxEtcTalhao = (g) => {
+    const nomes = Array.from(new Set(g.data.map((b) => b.talhao)));
+    const medidos = nomes.filter((n) => g.data.some((b) => b.talhao === n && !b.projetado));
+    return { nomes, t: nomes.includes(window.cxEtcSel) ? window.cxEtcSel : medidos[0] || nomes[0] || null };
+  };
+
   dash.draw('t1', (el) => {
     const g = dash.data('balanco');
-    el.textContent = g.status === 'ok' && g.data.length ? g.data[0].talhao : '—';
+    el.textContent = g.status === 'ok' && g.data.length ? window.cxEtcTalhao(g).t : '—';
+  });
+
+  dash.draw('etcsel', (el) => {
+    const g = dash.data('balanco');
+    el.replaceChildren();
+    if (g.status !== 'ok') { el.textContent = '—'; return; }
+    const { nomes, t } = window.cxEtcTalhao(g);
+    if (nomes.length < 2) return;
+    nomes.forEach((n) => {
+      const bt = document.createElement('button'); bt.type = 'button'; bt.textContent = n;
+      bt.setAttribute('aria-pressed', String(n === t));
+      bt.onclick = () => { window.cxEtcSel = n; dash.draw('etcsel'); dash.draw('etcchart'); dash.draw('t1'); };
+      el.appendChild(bt);
+    });
   });
 
   window.cxLineChart = (el, series, yMax, yFmt, refY, tipFmt) => {
@@ -862,7 +903,7 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
   dash.draw('etcchart', (el) => {
     const g = dash.data('balanco');
     if (!window.cxState(el, g)) return;
-    const t = g.data.length ? g.data[0].talhao : null;
+    const t = window.cxEtcTalhao(g).t;
     const rs = g.data.filter((b) => b.talhao === t);
     const series = [
       { name: 'ETc', color: dash.colors[0], rows: rs.map((b) => ({ dia: b.dia, v: Number(b.etc_mm), proj: !!b.projetado })) },
@@ -871,17 +912,34 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     window.cxLineChart(el, series, d3.max(rs, (b) => Number(b.etc_mm)) || 0, null, null, (v) => window.cxNum(v, 1) + ' mm');
   });
 
-  dash.draw('baltab', (tb) => {
+  dash.draw('baltabs', (el) => {
     const g = dash.data('balanco');
-    tb.replaceChildren();
-    if (g.status !== 'ok') return;
-    g.data.slice().sort((a, b) => (a.dia < b.dia ? 1 : a.dia > b.dia ? -1 : a.talhao < b.talhao ? -1 : 1)).forEach((b) => {
-      const tr = document.createElement('tr');
-      tr.dataset.key = encodeURIComponent(b.talhao) + ',' + encodeURIComponent(b.dia);
-      if (b.projetado) tr.className = 'cx-proj';
-      const cells = [b.talhao, window.cxDia(b.dia) + (b.projetado ? ' (prev.)' : ''), String(b.das), b.estadio, window.cxNum(b.chuva_mm, 1), window.cxNum(b.et0_mm, 1), window.cxNum(b.etc_mm, 1), window.cxNum(b.eta_mm, 1), b.agua_pct + '%'];
-      cells.forEach((c, i) => { const td = document.createElement('td'); if (i > 3) td.className = 'cx-r'; td.textContent = c; tr.appendChild(td); });
-      tb.appendChild(tr);
+    el.replaceChildren();
+    if (g.status !== 'ok') { el.textContent = '—'; return; }
+    const nomes = Array.from(new Set(g.data.map((b) => b.talhao)));
+    const cols = [['Dia', false], ['DAP', true], ['Estádio', false], ['Chuva', true], ['ET0', true], ['ETc', true], ['ETa', true], ['Água no solo', true]];
+    nomes.forEach((n) => {
+      const rs = g.data.filter((b) => b.talhao === n).sort((a, b) => (a.dia < b.dia ? 1 : -1));
+      const card = document.createElement('div'); card.className = 'cx-card'; card.id = 'balanco-' + String(n).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const h = document.createElement('h2'); h.textContent = 'Talhão ' + n;
+      const nota = document.createElement('p'); nota.className = 'cx-cardnote';
+      const med = rs.filter((b) => !b.projetado).length;
+      nota.textContent = med + ' dias medidos' + (rs.length > med ? ' e ' + (rs.length - med) + ' de previsão' : '');
+      const box = document.createElement('div'); box.className = 'cx-tablebox';
+      const tb = document.createElement('table'); tb.className = 'cx-table';
+      const thead = document.createElement('thead'); const hr = document.createElement('tr');
+      cols.forEach(([txt, r]) => { const th = document.createElement('th'); th.textContent = txt; if (r) th.className = 'cx-r'; hr.appendChild(th); });
+      thead.appendChild(hr); tb.appendChild(thead);
+      const body = document.createElement('tbody');
+      rs.forEach((b) => {
+        const tr = document.createElement('tr');
+        if (b.projetado) tr.className = 'cx-proj';
+        const cells = [window.cxDia(b.dia) + (b.projetado ? ' (prev.)' : ''), String(b.das), b.estadio, window.cxNum(b.chuva_mm, 1), window.cxNum(b.et0_mm, 1), window.cxNum(b.etc_mm, 1), window.cxNum(b.eta_mm, 1), b.agua_pct + '%'];
+        cells.forEach((c, i) => { const td = document.createElement('td'); if (cols[i][1]) td.className = 'cx-r'; td.textContent = c; tr.appendChild(td); });
+        body.appendChild(tr);
+      });
+      tb.appendChild(body); box.appendChild(tb);
+      card.append(h, nota, box); el.appendChild(card);
     });
   });
 
@@ -1114,5 +1172,6 @@ body { background: var(--campo); color: var(--tinta); font-family: var(--f-texto
     .catch(() => { const a = document.getElementById('alertas'); if (a) { a.innerHTML = '<p class="site-erro">Não foi possível carregar os dados (arquivo dados.json). Recarregue a página em alguns minutos.</p>'; } });
 })();
 </script>
+
 </body>
 </html>
