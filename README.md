@@ -1,8 +1,5 @@
 # Lavoura e Clima OmniAgro
 
-Site de monitoramento da lavoura: chuva da estação ISOMIG20 (São Miguel Arcanjo/SP), previsão AccuWeather, balanço hídrico, estádios e produtividade da soja.
+Endereço de entrada do painel de monitoramento da lavoura (chuva da estação ISOMIG20, previsão, balanço hídrico, estádios e produtividade da soja).
 
-- `index.html`: a página.
-- `dados.json`: os dados, atualizados todo dia às 23:45.
-
-Publicado pelo GitHub Pages.
+O `index.html` redireciona para o painel publicado no Claude, que é atualizado automaticamente todo dia às 23:45.
